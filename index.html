@@ -3,126 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تمرین طراحی سیستم اعلان</title>
+    <title>تست اعلان سیستم</title>
     <style>
         body {
-            background-color: #2c2c2c; /* زمینه تیره مثل عکس‌هایت */
-            font-family: sans-serif;
+            background-color: #1a1a1a;
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
         }
-
-        /* استایل پنجره وسط صفحه (مطابق عکس سوم) */
         .modal {
             background: white;
-            width: 85%;
-            max-width: 350px;
-            padding: 30px 20px;
-            border-radius: 25px;
+            width: 90%;
+            max-width: 340px;
+            padding: 25px;
+            border-radius: 20px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        h2 { font-size: 24px; margin: 10px 0; color: #000; }
-        
-        .amount {
-            font-size: 22px;
-            font-weight: bold;
-            margin: 15px 0;
-            color: #222;
-        }
-
-        .timer {
-            color: #ff0000;
-            font-size: 22px;
-            font-weight: bold;
-            margin: 15px 0;
-        }
-
-        .btn-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn-info {
+        h2 { margin: 10px 0; color: #000; font-size: 22px; }
+        .description { color: #555; font-size: 14px; margin-bottom: 15px; }
+        .timer { color: red; font-size: 24px; font-weight: bold; margin: 15px 0; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button {
             flex: 1;
             padding: 12px;
-            border: 1px solid #007bff;
             border-radius: 10px;
-            color: #007bff;
-            background: white;
             font-weight: bold;
             cursor: pointer;
-        }
-
-        .btn-main {
-            flex: 1;
-            padding: 12px;
-            background: #007bff;
             border: none;
-            border-radius: 10px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
         }
+        .btn-white { background: #fff; border: 1px solid #007bff; color: #007bff; }
+        .btn-blue { background: #007bff; color: #white; color: white; }
     </style>
 </head>
 <body>
 
     <div class="modal">
-        <div class="close-btn">×</div>
         <h2>تبریک!</h2>
-        <p>شما یک پیام آموزشی جدید دارید</p>
-        <div class="amount">کد یادگیری: #108375</div>
-        <div class="timer" id="timer">01:00</div>
-
-        <div class="btn-container">
-            <button class="btn-info">جزئیات</button>
-            <button class="btn-main" onclick="sendNotification()">ارسال اعلان به گوشی</button>
+        <p class="description">سیستم برای شما یک پیام جدید ارسال کرد.</p>
+        <div class="timer" id="display-timer">01:00</div>
+        <div class="btn-group">
+            <button class="btn-white">جزئیات</button>
+            <button class="btn-blue" onclick="handleNotification()">دریافت پیام</button>
         </div>
     </div>
 
     <script>
-        // ۱. عملکرد تایمر
-        let time = 60;
+        // ۱. کد تایمر معکوس
+        let timeLeft = 60;
+        const timerElement = document.getElementById('display-timer');
         setInterval(() => {
-            if (time > 0) {
-                time--;
-                let m = Math.floor(time / 60);
-                let s = time % 60;
-                document.getElementById('timer').innerText = `0${m}:${s < 10 ? '0' + s : s}`;
+            if (timeLeft > 0) {
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60);
+                let s = timeLeft % 60;
+                timerElement.innerText = `0${m}:${s < 10 ? '0' + s : s}`;
             }
         }, 1000);
 
-        // ۲. عملکرد ارسال پیام به بالای گوشی (مثل عکس ۱ و ۲)
-        function sendNotification() {
+        // ۲. کد اصلی ارسال اعلان بدون ارور
+        function handleNotification() {
+            // بررسی اینکه آیا مرورگر از اعلان پشتیبانی می‌کند
+            if (!("Notification" in window)) {
+                alert("مرورگر شما از سیستم پیام (Notification) پشتیبانی نمی‌کند.");
+                return;
+            }
+
             // درخواست اجازه از کاربر
             Notification.requestPermission().then(permission => {
                 if (permission === "granted") {
-                    // ایجاد پیام در نوار وضعیت گوشی
-                    new Notification("Onaylandı (تایید شد)", {
-                        body: "آموزش با موفقیت فعال شد. برای مشاهده کلیک کنید.",
-                        icon: "https://cdn-icons-png.flaticon.com/512/190/190411.png" // آیکون تیک سبز
+                    // اگر اجازه داده شد، پیام ارسال شود
+                    const notify = new Notification("تایید شد! ✅", {
+                        body: "این یک پیام تست واقعی است که در نوار بالای گوشی شما ظاهر شد.",
+                        icon: "https://cdn-icons-png.flaticon.com/512/190/190411.png"
                     });
+
+                    notify.onclick = function() {
+                        window.focus();
+                        this.close();
+                    };
                 } else {
-                    alert("لطفاً اجازه ارسال اعلان (Notification) را در مرورگر بدهید.");
+                    // اگر اجازه داده نشد، راهنمایی کند
+                    alert("شما اجازه ارسال پیام را مسدود کرده‌اید. لطفا در تنظیمات مرورگر (آیکون قفل کنار آدرس) گزینه Notifications را روی Allow بگذارید.");
                 }
             });
         }
     </script>
 </body>
 </html>
-
